@@ -8,7 +8,7 @@ import { SongsModule } from './songs/songs.module.js';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     SongsModule,
-    //RoomsModule,
+    RoomsModule,
     AiModule,
   ],
 })

@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  ownedBands  Band[]
+  roomMembers RoomMember[]
+}
+
+model Band {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  owner User   @relation(fields: [ownerId], references: [id])
+  songs Song[]
+  rooms Room[]
+}
+
+model Song {
+  id       String  @id @default(cuid())
+  title    String
+  artist   String
+  author   String?
+  key      String
+  bpm      Int
+  duration Float
+  sections String  // JSON: Section[]
+  bandId   String
+
+  band Band @relation(fields: [bandId], references: [id])
+}
+
+model Room {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  bandId       String
+  leaderId     String
+  setlist      String   // JSON: string[] (song ids)
+  activeSongId String?
+  createdAt    DateTime @default(now())
+
+  band    Band         @relation(fields: [bandId], references: [id])
+  members RoomMember[]
+}
+
+model RoomMember {
+  id       String   @id @default(cuid())
+  roomId   String
+  userId   String
+  role     String   @default("MEMBER") // "LEADER" | "MEMBER"
+  joinedAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+}

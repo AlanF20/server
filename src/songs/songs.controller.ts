@@ -13,6 +13,8 @@ import {
 import {
   CreateSongDto,
   type CreateSongInput,
+  ForkSongDto,
+  type ForkSongInput,
   UpdateSongDto,
   type UpdateSongInput,
 } from './songs.dto.js';
@@ -28,6 +30,16 @@ export class SongsController {
     return this.songs.findAll(bandId, q);
   }
 
+  @Get('discover')
+  discover(@Query('q') q?: string) {
+    return this.songs.discover(q);
+  }
+
+  @Get('search-spotify')
+  searchSpotify(@Query('q') q: string) {
+    return this.songs.searchSpotify(q);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.songs.findOne(id);
@@ -39,6 +51,15 @@ export class SongsController {
     @Body(new ZodPipe(CreateSongDto)) body: CreateSongInput,
   ) {
     return this.songs.create(bandId, body);
+  }
+
+  @Post(':id/fork')
+  fork(
+    @Param('id') id: string,
+    @Query('bandId') bandId: string,
+    @Body(new ZodPipe(ForkSongDto)) overrides: ForkSongInput,
+  ) {
+    return this.songs.fork(id, bandId, overrides);
   }
 
   @Patch(':id')

@@ -12,6 +12,7 @@ model User {
   email     String   @unique
   name      String
   createdAt DateTime @default(now())
+  password  String
 
   ownedBands  Band[]
   roomMembers RoomMember[]
@@ -33,13 +34,17 @@ model Song {
   title    String
   artist   String
   author   String?
-  key      String
-  bpm      Int
+  key      String?
+  bpm      Int?
   duration Float
-  sections String  // JSON: Section[]
+  lyrics   String?
+  sections String?  // JSON: Section[] — optional addon
   bandId   String
+  originId String? // song this one was forked from, if any
 
-  band Band @relation(fields: [bandId], references: [id])
+  band   Band    @relation(fields: [bandId], references: [id])
+  origin Song?   @relation("SongLineage", fields: [originId], references: [id], onDelete: SetNull)
+  forks  Song[]  @relation("SongLineage")
 }
 
 model Room {

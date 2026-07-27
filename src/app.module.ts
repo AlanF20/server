@@ -4,7 +4,10 @@ import { RoomsModule } from './rooms/rooms.module.js';
 import { SongsModule } from './songs/songs.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
-
+import { AppController } from './app.controller.js';
+import { LoggerModule, nativeLoggerOptions } from 'nestjs-pino';
+import { AuthService } from './auth/auth.service.js';
+import { PrismaService } from './prisma.service.js';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
@@ -12,6 +15,19 @@ import { UsersModule } from './users/users.module.js';
     RoomsModule,
     AuthModule,
     UsersModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        ...nativeLoggerOptions,
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? {
+                target: 'pino-pretty',
+              }
+            : undefined,
+      },
+    }),
   ],
+  controllers: [AppController],
+  providers: [AuthService, PrismaService],
 })
 export class AppModule {}

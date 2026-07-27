@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
-import { PrismaService } from 'src/prisma.service.js';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './local.strategy.js';
+import { PrismaService } from '../prisma.service.js';
 
 @Module({
-  providers: [AuthService],
-  imports: [PrismaService],
+  providers: [AuthService, LocalStrategy, PrismaService],
+  imports: [PassportModule],
 })
 export class AuthModule {}

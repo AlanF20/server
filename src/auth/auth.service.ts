@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service.js';
 import bcrypt from 'bcrypt';
 import { authSchema, ValidateAuthDto } from './dtos/validate.dto.js';
@@ -14,6 +15,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private readonly logger: PinoLogger,
+    private readonly jwt: JwtService,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -41,6 +43,16 @@ export class AuthService {
         password: hashedPassword,
       },
     });
-    return user;
+    return userResponseSchema.parse(user);
+  }
+
+  async login(user: UserResponseDto) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+    };
+    const accessToken = await this.jwt.signAsync(payload);
+    return { accessToken, user };
   }
 }

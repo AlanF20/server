@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RoomsModule } from './rooms/rooms.module.js';
 import { SongsModule } from './songs/songs.module.js';
+import { BandsModule } from './bands/bands.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AppController } from './app.controller.js';
@@ -13,6 +14,7 @@ import { PrismaService } from './prisma.service.js';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     SongsModule,
     RoomsModule,
+    BandsModule,
     AuthModule,
     UsersModule,
     LoggerModule.forRoot({

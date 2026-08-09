@@ -14,19 +14,35 @@ model User {
   createdAt DateTime @default(now())
   password  String
 
-  ownedBands  Band[]
-  roomMembers RoomMember[]
+  ownedBands      Band[]
+  roomMembers     RoomMember[]
+  bandMemberships BandMember[]
 }
 
 model Band {
+  id         String   @id @default(cuid())
+  name       String
+  ownerId    String
+  inviteCode String?  @unique
+  createdAt  DateTime @default(now())
+
+  owner   User         @relation(fields: [ownerId], references: [id])
+  members BandMember[]
+  songs   Song[]
+  rooms   Room[]
+}
+
+model BandMember {
   id        String   @id @default(cuid())
-  name      String
-  ownerId   String
+  bandId    String
+  userId    String
+  role      String   @default("MEMBER") // "OWNER" | "MEMBER"
   createdAt DateTime @default(now())
 
-  owner User   @relation(fields: [ownerId], references: [id])
-  songs Song[]
-  rooms Room[]
+  band Band @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([bandId, userId])
 }
 
 model Song {
@@ -38,13 +54,13 @@ model Song {
   bpm      Int?
   duration Float
   lyrics   String?
-  sections String?  // JSON: Section[] — optional addon
+  sections String? // JSON: Section[] — optional addon
   bandId   String
   originId String? // song this one was forked from, if any
 
-  band   Band    @relation(fields: [bandId], references: [id])
-  origin Song?   @relation("SongLineage", fields: [originId], references: [id], onDelete: SetNull)
-  forks  Song[]  @relation("SongLineage")
+  band   Band   @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  origin Song?  @relation("SongLineage", fields: [originId], references: [id], onDelete: SetNull)
+  forks  Song[] @relation("SongLineage")
 }
 
 model Room {
@@ -52,11 +68,11 @@ model Room {
   code         String   @unique
   bandId       String
   leaderId     String
-  setlist      String   // JSON: string[] (song ids)
+  setlist      String // JSON: string[] (song ids)
   activeSongId String?
   createdAt    DateTime @default(now())
 
-  band    Band         @relation(fields: [bandId], references: [id])
+  band    Band         @relation(fields: [bandId], references: [id], onDelete: Cascade)
   members RoomMember[]
 }
 
